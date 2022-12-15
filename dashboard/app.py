@@ -12,46 +12,11 @@ import altair as alt
 df = pd.read_csv("../data/external/data.csv")
 
 
-###-------------------###
-# START OF OUR APP
-
 #-------------------#
-# HEADER
+# CREATE CHARTS
 
-# Title of our app
-st.title("2022-23 NHL Predictions")
-
-# Add image
-
-
-# Add header
-st.header("Exploring Data - NHL Predicitons 2023")
-
-#-------------------#
-# SIDEBAR
-
-# Header
-st.sidebar.header("This is my sidebar")
-
-# Make a slider
-satisfaction = st.sidebar.slider('What is your life satisfaction?', 0, 10, 1)
-
-# Show output of slider selection
-st.sidebar.write("My life satisfaction is around ", satisfaction, 'points')
-
-#-------------------#
-# BODY
-
-col1, col2 = st.columns(2)
-
-
-st.write("The data was sourced from fivethrityeight.com on Nov. 30 2022.")
-# Show static DataFrame
-st.dataframe(df)
-
-st.write("Take a look at my chart")
-# Make a chart with altair
-c = alt.Chart(df).mark_circle(size=60).encode(
+### Home Team Rating-to-Win Probability
+c1 = alt.Chart(df).mark_circle(size=60).encode(
     x=alt.X('home_team_pregame_rating',
             axis=alt.Axis(title="Pregame Rating",
                           labelAngle=0,
@@ -67,6 +32,7 @@ c = alt.Chart(df).mark_circle(size=60).encode(
         
     ).interactive()
 
+### Away Team Rating-to-Win Probability
 c2 = alt.Chart(df).mark_circle(size=60).encode(
     x=alt.X('away_team_pregame_rating',
             axis=alt.Axis(title="Pregame Rating",
@@ -84,13 +50,92 @@ c2 = alt.Chart(df).mark_circle(size=60).encode(
         
     ).interactive()
 
+### Away & Home Team Rating-to-Win Probability
+c1_2 = (c1 + c2).properties(title="Comparison Win Probability Home Team & Away Team")
 
+### Game Evaluation
+source = pd.DataFrame({'Quality': df.game_quality_rating,
+                     'Importance': df.game_importance_rating,
+                     'Overall': df.game_overall_rating})
+
+c3 = alt.Chart(source).mark_rect().encode(
+            x=alt.X('Quality:O',
+                        axis=alt.Axis(
+                            title="Game Quality",
+                            titleAnchor='start'
+                        ),
+                        scale=alt.Scale(
+                            domain=(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100)
+                        )),
+            y=alt.Y('Importance:O',
+                        axis=alt.Axis(
+                            title="Game Importance"
+                        ),
+                        scale=alt.Scale(
+                            domain=(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100)
+                        )),
+            color=alt.Color('Overall:Q'),
+            tooltip=['Quality','Importance','Overall']
+).properties(
+    title="Game Evaluation",
+    width = 600,
+    height = 550
+)
+
+
+
+###-------------------###
+# START OF OUR APP
+
+#-------------------#
+# HEADER
+
+# Title of our app
+st.title("2022-23 NHL Predictions")
+
+# Add image
+
+
+# Add header
+st.header("Exploring Data - NHL Predicitons 2023")
+
+
+
+#-------------------#
+# BODY
+
+
+
+
+st.write("The data was sourced from fivethrityeight.com on Nov. 30 2022.")
+# Show static DataFrame
+st.dataframe(df)
+
+st.subheader("Comparison of Win Probabilities of the teams")
+
+
+tab1, tab2 = st.tabs(["Individual Charts", "Joint Data"])
 # Show plot
-with col1:
-    st.altair_chart(c, use_container_width=True)
+with tab1:
+    col1, col2 = st.columns(2)
+    with col1:
+        st.altair_chart(c1, use_container_width=True)
 
-with col2:
-    st.altair_chart(c2, use_container_width=True)
+    with col2:
+        st.altair_chart(c2, use_container_width=True)
+    
+    st.text("Here could be the explanantion and analysis of the data visualized in the charts\nabove. However there ist not. This is just a spaceholder text snippet that is\nsupposed to illustrate said paragraph - because the analysis is not part of\nthe given task.")
+
+with tab2:
+    st.altair_chart(c1_2, use_container_width=True)
+
+
+st.subheader("Game Evaluation - Pregame")
+st.altair_chart(c3)
+
+
+
+
 
 ###-------------------###
 # END OF APP
