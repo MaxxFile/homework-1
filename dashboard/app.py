@@ -82,8 +82,6 @@ c3 = alt.Chart(source).mark_rect().encode(
     height = 550
 )
 
-
-
 ###-------------------###
 # START OF OUR APP
 
@@ -124,7 +122,7 @@ with tab1:
     with col2:
         st.altair_chart(c2, use_container_width=True)
     
-    st.text("Here could be the explanantion and analysis of the data visualized in the charts\nabove. However there ist not. This is just a spaceholder text snippet that is\nsupposed to illustrate said paragraph - because the analysis is not part of\nthe given task.")
+    st.write("Here could be the explanantion and analysis of the data visualized in the charts above. However there ist not. This is just a spaceholder text snippet that is supposed to illustrate said paragraph - because the analysis is not part of the given task.")
 
 with tab2:
     st.altair_chart(c1_2, use_container_width=True)
@@ -136,6 +134,25 @@ st.altair_chart(c3)
 
 
 
+st.subheader("Pregame Rating of the Home Teams")
+st.write("In the following chart we can see the Pregame Points of the Home Teams. The red line indicates the mean of the Home Team Ratings, thus showing which teams are rated above or below average.")
+with st.echo():
+        bar = alt.Chart(df).mark_bar().encode(
+        x=alt.X('home_team:O', sort='-y',
+                axis=alt.Axis(title="Home Team", titleAnchor="start")),
+        y=alt.Y('home_team_pregame_rating:Q', 
+                scale=alt.Scale(zero=False), 
+                axis=alt.Axis(title = "Home Team Pregame Rating", titleAnchor="end"))
+        )
+
+        rule = alt.Chart(df).mark_rule(color='red').encode(
+            y=alt.Y('mean(home_team_pregame_rating):Q')
+
+        )
+
+        (bar + rule).properties(width=600,title='Home Teams Pregame Rating')
+
+st.write("The chart sadly will not load correctly...")
 
 ###-------------------###
 # END OF APP
