@@ -82,6 +82,31 @@ c3 = alt.Chart(source).mark_rect().encode(
     height = 550
 )
 
+### Home Team to Game Rating
+c4 = alt.Chart(df).mark_boxplot(extent='min-max').encode(
+    x=alt.X('home_team:O',
+            axis = alt.Axis(title="Home Team",
+                            titleAnchor="start")),
+    y=alt.Y('home_team_postgame_rating:Q',
+            scale=alt.Scale(zero=False),
+            axis = alt.Axis(title="Home Team Postgame Rating", titleAnchor="end")),
+).properties(
+        title='Estimation of postgame ratings on Home Team side',
+        height = 600
+    )
+
+c5 = alt.Chart(df).mark_boxplot(extent='min-max').encode(
+    x=alt.X('home_team:O',
+            axis = alt.Axis(title="Home Team",
+                            titleAnchor="start")),
+    y=alt.Y('away_team_pregame_rating:Q',
+            scale=alt.Scale(zero=False),
+            axis = alt.Axis(title="Away Team Pregame Rating", titleAnchor="end")),
+).properties(
+        title='Pregame ratings of Away Teams when playing against Home Teams',
+        height=700        
+    )
+
 ###-------------------###
 # START OF OUR APP
 
@@ -153,6 +178,12 @@ with st.echo():
         (bar + rule).properties(width=600,title='Home Teams Pregame Rating')
 
 st.write("The chart sadly will not load correctly...")
+
+st.subheader("Game Ratings - Home Team Postgame Estimation")
+st.altair_chart(c4)
+
+st.subheader("Game Rating - Away Team Pregame per Home Team oponent")
+st.altair_chart(c5)
 
 ###-------------------###
 # END OF APP
