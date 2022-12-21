@@ -107,6 +107,38 @@ c5 = alt.Chart(df).mark_boxplot(extent='min-max').encode(
         height=700        
     )
 
+#---
+### preparing data ###
+data= df[['home_team', 'home_team_pregame_rating', 'date']]
+
+data['home_team'] = data['home_team'].astype("category")
+data['date'] = pd.to_datetime(data['date'])
+
+#data[data['home_team']=='New Jersey Devils']
+
+# Only keep the latest entry for every team
+idx = data.groupby('home_team')['date'].idxmax()
+
+# Save the latest entry as data_new
+data_new = data.loc[idx]
+
+bar = alt.Chart(data_new).mark_bar().encode(
+    x=alt.X('home_team:O', sort='-y',
+            axis=alt.Axis(title="Home Team",
+                            titleAnchor="start")),
+    y=alt.Y('home_team_pregame_rating:Q', 
+            scale=alt.Scale(zero=False), 
+            axis=alt.Axis(title = "Home Team Pregame Rating", 
+                        titleAnchor="end"))
+)
+
+rule = alt.Chart(data_new).mark_rule(color='red').encode(
+    y=alt.Y('mean(home_team_pregame_rating):Q')
+
+)
+
+c6 = (bar + rule).properties(width=600,title='Home Teams Pregame Rating')
+
 ###-------------------###
 # START OF OUR APP
 
@@ -161,23 +193,8 @@ st.altair_chart(c3)
 
 st.subheader("Pregame Rating of the Home Teams")
 st.write("In the following chart we can see the Pregame Points of the Home Teams. The red line indicates the mean of the Home Team Ratings, thus showing which teams are rated above or below average.")
-with st.echo():
-        bar = alt.Chart(df).mark_bar().encode(
-        x=alt.X('home_team:O', sort='-y',
-                axis=alt.Axis(title="Home Team", titleAnchor="start")),
-        y=alt.Y('home_team_pregame_rating:Q', 
-                scale=alt.Scale(zero=False), 
-                axis=alt.Axis(title = "Home Team Pregame Rating", titleAnchor="end"))
-        )
+st.altair_chart(c6)
 
-        rule = alt.Chart(df).mark_rule(color='red').encode(
-            y=alt.Y('mean(home_team_pregame_rating):Q')
-
-        )
-
-        (bar + rule).properties(width=600,title='Home Teams Pregame Rating')
-
-st.write("The chart sadly will not load correctly...")
 
 st.subheader("Game Ratings - Home Team Postgame Estimation")
 st.altair_chart(c4)
